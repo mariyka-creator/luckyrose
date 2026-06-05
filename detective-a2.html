@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Summer Detective - English A1/A2</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e5a7a, #ffb347);
+            font-family: 'Segoe UI', 'Comic Neue', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            background-color: #fffef7;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 25px 30px 40px;
+            text-align: center;
+            border: 3px solid #ffd966;
+        }
+        h1 {
+            color: #c4450c;
+            font-size: 2rem;
+            margin: 0 0 5px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .detective-icon {
+            font-size: 2rem;
+            letter-spacing: 5px;
+        }
+        .story {
+            background: #faf0e1;
+            border-radius: 30px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #2c3e2f;
+            border-left: 10px solid #ffb347;
+            text-align: left;
+        }
+        .story p {
+            margin: 10px 0;
+        }
+        .story em {
+            color: #c4450c;
+            font-weight: bold;
+        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0 10px;
+        }
+        button {
+            background-color: #ffb347;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            box-shadow: 0 4px 0 #a45d1a;
+        }
+        button:hover {
+            background-color: #ff9f1f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #a45d1a;
+        }
+        button:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #a45d1a;
+        }
+        .inventory {
+            background-color: #e6ddc7;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin: 15px 0 0;
+            font-size: 0.9rem;
+            font-family: monospace;
+            display: inline-block;
+        }
+        .vocab-box {
+            background-color: #d9e3c6;
+            border-radius: 25px;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #2c5e2a;
+        }
+        footer {
+            font-size: 0.7rem;
+            margin-top: 15px;
+            color: #b86f1c;
+        }
+        hr {
+            border-top: 2px dotted #f7d48b;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <h1>🕵️‍♀️ SUMMER DETECTIVE</h1>
+    <div class="detective-icon">🔍 🍦 🌞</div>
+    <div class="story" id="storyText">
+        Loading...
+    </div>
+    <div id="inventoryDiv" class="inventory">🎒 Inventory: —</div>
+    <div id="buttonsArea" class="buttons"></div>
+    <div class="vocab-box" id="vocabHint">
+        💬 New words appear as you play
+    </div>
+    <footer>🔎 English A1-A2 | Solve the case! | summer detective</footer>
+</div>
+
+<script>
+    // ---- ДЕТЕКТИВНАЯ ИСТОРИЯ ПРО ЛЕТО ----
+    let currentState = "intro";
+    
+    // Инвентарь (улики)
+    let inventory = [];
+    
+    // Правильное решение
+    const SOLUTION = "lemonade_glass";
+    let gameEnded = false;
+    
+    function updateInventoryUI() {
+        const invDiv = document.getElementById("inventoryDiv");
+        if (inventory.length === 0) {
+            invDiv.innerHTML = "🎒 Inventory: empty";
+        } else {
+            invDiv.innerHTML = "🎒 Inventory: " + inventory.join(" · ");
+        }
+    }
+    
+    function addToInventory(item, displayName) {
+        if (!inventory.includes(item)) {
+            inventory.push(item);
+            updateInventoryUI();
+            return true;
+        }
+        return false;
+    }
+    
+    function resetGame() {
+        inventory = [];
+        gameEnded = false;
+        currentState = "intro";
+        updateInventoryUI();
+        render(currentState);
+    }
+    
+    function render(state) {
+        if (gameEnded) return;
+        
+        const storyDiv = document.getElementById("storyText");
+        const buttonsDiv = document.getElementById("buttonsArea");
+        const vocabDiv = document.getElementById("vocabHint");
+        buttonsDiv.innerHTML = "";
+        
+        // ========== СЮЖЕТНЫЕ УЗЛЫ ==========
+        
+        if (state === "intro") {
+            storyDiv.innerHTML = `
+                <p>🔍 <strong>The Case of the Missing Ice Cream</strong></p>
+                <p>It's a hot summer day. <em>(It's very hot.)</em></p>
+                <p>You are <strong>Lena, a young detective</strong>. You are at the beach festival.</p>
+                <p>Suddenly... Mr. Johnson shouts: <strong>"My special ice cream is GONE!"</strong> 🍦❓</p>
+                <p>The ice cream was in a blue cooler near the lemonade stand.</p>
+                <p>🐾 You see footprints in the sand... Who took it?</p>
+                <p><strong>What do you do?</strong></p>
+            `;
+            addButton("🔎 Look for clues near the beach", "beach_clues");
+            addButton("🗣️ Talk to people at the festival", "talk_people");
+            vocabDiv.innerHTML = "🌞 new words: detective · beach · festival · footprints · cooler";
+        }
+        else if (state === "beach_clues") {
+            storyDiv.innerHTML = `
+                <p>🏖️ You walk along the beach. You see:</p>
+                <p>→ A <strong>blue swimsuit</strong> on the sand.<br>
+                → A small <strong>empty bottle</strong> of lemonade.<br>
+                → <strong>Strawberry seeds</strong> near the cooler.</p>
+                <p><em>Which clue do you take?</em></p>
+            `;
+            addButton("🍓 Take strawberry seeds", "take_seeds");
+            addButton("🍋 Take lemonade bottle", "take_bottle");
+            addButton("👙 Take swimsuit (it's wet)", "take_swimsuit");
+            addButton("🔙 Go back", "intro");
+            vocabDiv.innerHTML = "📖 clue · bottle · seeds · swimsuit · sand · wet";
+        }
+        else if (state === "take_seeds") {
+            let added = addToInventory("strawberry_seeds", "🍓 strawberry seeds");
+            let msg = added ? "You put the seeds in your pocket." : "You already have them.";
+            storyDiv.innerHTML = `<p>🍓 ${msg} Maybe someone ate strawberries before stealing the ice cream?</p><p>Now you have: strawberry seeds.</p>`;
+            addButton("➡️ Continue investigating", "talk_people");
+            vocabDiv.innerHTML = "📖 seeds (семена) · strawberry (клубника)";
+        }
+        else if (state === "take_bottle") {
+            let added = addToInventory("lemonade_bottle", "🍋 lemonade bottle");
+            let msg = added ? "You pick up the empty lemonade bottle. It smells sweet." : "You already have it.";
+            storyDiv.innerHTML = `<p>🍋 ${msg} There is a strange smell... not just lemonade.</p>`;
+            addButton("➡️ Continue", "talk_people");
+            vocabDiv.innerHTML = "📖 lemonade (лимонад) · empty (пустой) · smell (запах)";
+        }
+        else if (state === "take_swimsuit") {
+            let added = addToInventory("wet_swimsuit", "👙 wet swimsuit");
+            let msg = added ? "The swimsuit is wet with seawater, but also has a yellow stain." : "Already in your bag.";
+            storyDiv.innerHTML = `<p>👙 ${msg} A yellow stain... maybe ice cream or lemon?</p>`;
+            addButton("➡️ Keep looking", "talk_people");
+            vocabDiv.innerHTML = "📖 wet (мокрый) · stain (пятно) · seawater (морская вода)";
+        }
+        else if (state === "talk_people") {
+            storyDiv.innerHTML = `
+                <p>🗣️ You talk to three suspects:</p>
+                <p>👧 <strong>Mia</strong> (16): "I was swimming all morning. I love chocolate ice cream!"</p>
+                <p>🧑 <strong>Tom</strong> (14): "I was at the lemonade stand. The ice cream looked yummy."</p>
+                <p>👩 <strong>Mrs. Green</strong> (45): "I ate a sandwich. I don't like sweet things."</p>
+                <p><strong>Who do you want to question more?</strong></p>
+            `;
+            addButton("👧 Question Mia", "question_mia");
+            addButton("🧑 Question Tom", "question_tom");
+            addButton("👩 Question Mrs. Green", "question_green");
+            if (inventory.length >= 2) {
+                addButton("🔍 Make an accusation! (solve the case)", "accusation");
+            } else {
+                addButton("⚠️ You need more clues (find at least 2)", "beach_clues");
+            }
+            vocabDiv.innerHTML = "📖 suspect · question · yummy · swimming · sandwich";
+        }
+        else if (state === "question_mia") {
+            storyDiv.innerHTML = `
+                <p>👧 <strong>Mia:</strong> "I was in the water. Look, my swimsuit is still wet! I didn't steal anything."</p>
+                <p>🔍 You notice: Mia's swimsuit is <strong>green</strong>, not blue. The wet swimsuit you found was blue.</p>
+                <p>➕ <em>You learn: Mia doesn't lie about swimming.</em></p>
+            `;
+            addButton("🔙 Back to suspects", "talk_people");
+            vocabDiv.innerHTML = "📖 lie (лгать) · notice (замечать) · wet (мокрый)";
+        }
+        else if (state === "question_tom") {
+            storyDiv.innerHTML = `
+                <p>🧑 <strong>Tom:</strong> "I love lemonade! I had three glasses today. But I didn't touch the ice cream."</p>
+                <p>🔍 Tom's hands have <strong>yellow stains</strong>... like lemon or... vanilla ice cream?</p>
+                <p>➕ <em>Tom acts nervous.</em></p>
+            `;
+            addButton("🔙 Back to suspects", "talk_people");
+            vocabDiv.innerHTML = "📖 lemonade · nervous (нервный) · stain (пятно) · vanilla";
+        }
+        else if (state === "question_green") {
+            storyDiv.innerHTML = `
+                <p>👩 <strong>Mrs. Green:</strong> "I only had a sandwich. But I saw someone with a blue swimsuit running fast."</p>
+                <p>🔍 A blue swimsuit? That matches the clue on the beach!</p>
+                <p>➕ <em>Mrs. Green points towards the beach houses.</em></p>
+            `;
+            addButton("🔙 Back to suspects", "talk_people");
+            vocabDiv.innerHTML = "📖 sandwich · running · beach house";
+        }
+        else if (state === "accusation") {
+            storyDiv.innerHTML = `
+                <p>🕵️‍♀️ <strong>Time to solve the mystery!</strong></p>
+                <p>You have some clues: ${inventory.join(", ") || "none"}.</p>
+                <p>Who took the special ice cream?</p>
+            `;
+            addButton("👧 Accuse Mia", "accuse_mia");
+            addButton("🧑 Accuse Tom", "accuse_tom");
+            addButton("👩 Accuse Mrs. Green", "accuse_green");
+            addButton("🔄 Back to investigation", "talk_people");
+            vocabDiv.innerHTML = "📖 accuse (обвинять) · solve (решить) · mystery (тайна)";
+        }
+        else if (state === "accuse_mia") {
+            storyDiv.innerHTML = `
+                <p>👧 You say: <strong>"Mia, you took the ice cream!"</strong></p>
+                <p>Mia laughs: "Check my bag! I only have a towel and sunscreen." 🧴</p>
+                <p>❌ <em>Wrong! Mia was swimming all the time.</em> The real thief is still free.</p>
+                <p>🍦 The case is not solved.</p>
+            `;
+            addButton("🔁 Try again (restart)", "restart");
+            vocabDiv.innerHTML = "❌ mistake · towel · sunscreen · wrong";
+            gameEnded = true;
+        }
+        else if (state === "accuse_green") {
+            storyDiv.innerHTML = `
+                <p>👩 You say: <strong>"Mrs. Green, you didn't like sweets... maybe you wanted to hide the ice cream?"</strong></p>
+                <p>Mrs. Green shows her sandwich bag: "See? Only bread and cheese." 🧀</p>
+                <p>❌ <em>Wrong. Mrs. Green is innocent.</em> She saw the real thief with a blue swimsuit.</p>
+            `;
+            addButton("🔁 Restart", "restart");
+            vocabDiv.innerHTML = "❌ innocent (невиновный) · hide (прятать) · bread";
+            gameEnded = true;
+        }
+        else if (state === "accuse_tom") {
+            let hasBottle = inventory.includes("lemonade_bottle");
+            let extraMsg = "";
+            if (hasBottle) {
+                extraMsg = "<p>🔍 You show the empty lemonade bottle. The smell is VANILLA, not lemon! 🍨 Tom mixed vanilla ice cream with lemonade!</p>";
+            } else {
+                extraMsg = "<p>🔍 Tom's hands have yellow stains. But you don't have the bottle as proof...</p>";
+            }
+            storyDiv.innerHTML = `
+                <p>🧑 You point at Tom: <strong>"You took the ice cream!"</strong></p>
+                ${extraMsg}
+                <p>Tom's face turns red. "Okay, okay... I was so hot. I just wanted a taste. I'm sorry!" 😔</p>
+                <p>🍦 Mr. Johnson finds the ice cream half-eaten in Tom's beach bag.</p>
+                <p>✅ <strong>CASE SOLVED! The thief is Tom.</strong> You are a great summer detective!</p>
+                <p>🏆 <em>Summer words you learned: detective, clue, lemonade, stain, thief, solve, innocent, accuse.</em></p>
+            `;
+            addButton("🌞 Play again", "restart");
+            vocabDiv.innerHTML = "🏅 solved! · thief · proof · half-eaten · great job!";
+            gameEnded = true;
+        }
+        else if (state === "restart") {
+            resetGame();
+            return;
+        }
+        else {
+            storyDiv.innerHTML = "Error. Please restart.";
+            addButton("Restart", "restart");
+        }
+        
+        function addButton(text, nextState) {
+            const btn = document.createElement("button");
+            btn.innerText = text;
+            btn.addEventListener("click", () => {
+                if (nextState === "restart") {
+                    resetGame();
+                } else {
+                    currentState = nextState;
+                    render(currentState);
+                }
+            });
+            buttonsDiv.appendChild(btn);
+        }
+    }
+    
+    // Старт игры
+    render("intro");
+</script>
+</body>
+</html>
