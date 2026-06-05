@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lena's Summer Picnic - English A1</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffd89b, #c7e9fb);
+            font-family: 'Segoe UI', 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            background-color: #fffef7;
+            border-radius: 60px 60px 80px 80px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-width: 700px;
+            width: 100%;
+            padding: 30px 35px 45px;
+            text-align: center;
+            border: 3px solid #ffb347;
+        }
+        h1 {
+            color: #f77f00;
+            font-size: 2.4rem;
+            margin: 0 0 5px 0;
+            text-shadow: 2px 2px 0 #ffe0a3;
+        }
+        .summer-icon {
+            font-size: 2rem;
+            letter-spacing: 8px;
+        }
+        .story {
+            background: #fef5e8;
+            border-radius: 50px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            font-size: 1.3rem;
+            line-height: 1.5;
+            color: #3b2a1f;
+            border: 2px dashed #ffb347;
+            text-align: left;
+        }
+        .story p {
+            margin: 12px 0;
+        }
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: center;
+            margin: 20px 0 10px;
+        }
+        button {
+            background-color: #ffb347;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 12px 28px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            box-shadow: 0 5px 0 #c46d00;
+        }
+        button:hover {
+            background-color: #ff9e1a;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #c46d00;
+        }
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #c46d00;
+        }
+        .vocab-box {
+            background-color: #f0e2c0;
+            border-radius: 30px;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #5a3e1b;
+        }
+        footer {
+            font-size: 0.75rem;
+            margin-top: 20px;
+            color: #b97f2e;
+        }
+        hr {
+            border-top: 2px dotted #ffcd94;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameRoot">
+    <h1>🌞 Lena’s Summer Picnic 🌻</h1>
+    <div class="summer-icon">🍉 🍦 🦋</div>
+    <div class="story" id="storyText">
+        <!-- сюжет меняется динамически -->
+    </div>
+    <div id="buttonsArea" class="buttons">
+        <!-- кнопки появляются здесь -->
+    </div>
+    <div class="vocab-box" id="vocabHint">
+        💬 полезные летние слова появятся в конце
+    </div>
+    <footer>✨ English for girls | A1 | summer vocabulary ✨</footer>
+</div>
+
+<script>
+    // ---------- СОСТОЯНИЕ ИГРЫ ----------
+    let currentState = "start";
+
+    // ---------- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ОТРИСОВКИ ----------
+    function render(state) {
+        const storyDiv = document.getElementById("storyText");
+        const buttonsDiv = document.getElementById("buttonsArea");
+        const vocabDiv = document.getElementById("vocabHint");
+
+        // сброс кнопок
+        buttonsDiv.innerHTML = "";
+
+        // ЛОГИКА ПО СОСТОЯНИЯМ
+        if (state === "start") {
+            storyDiv.innerHTML = `
+                <p>☀️ Лето. Солнце светит. <strong>The sun is shining.</strong></p>
+                <p>👧 Ты — <strong>Лена</strong>. Ты хочешь пойти на пикник.</p>
+                <p>🧢 Что ты наденешь? <em>What will you wear?</em></p>
+            `;
+            addButton("👒 Надеть шляпу → Wear hat", "wearHat");
+            addButton("🧢 Надеть кепку → Wear cap", "wearCap");
+            vocabDiv.innerHTML = "🌱 новые слова появятся в конце игры 🌱";
+        }
+        else if (state === "wearHat") {
+            storyDiv.innerHTML = `
+                <p>🧡 Отлично! Ты надеваешь шляпу. <strong>You put on a hat.</strong></p>
+                <p>☀️ Летом важно защищать голову от солнца.</p>
+                <p>🌳 Теперь ты идёшь в парк. В парке ты видишь:</p>
+                <p>🍦 мороженое (<em>ice cream</em>) &nbsp;&nbsp;|&nbsp;&nbsp; 🦋 бабочку (<em>butterfly</em>)</p>
+            `;
+            addButton("🍦 Взять мороженое", "iceCream");
+            addButton("🦋 Посмотреть на бабочку", "butterfly");
+            vocabDiv.innerHTML = "📖 hat (шляпа), park (парк), ice cream, butterfly";
+        }
+        else if (state === "wearCap") {
+            storyDiv.innerHTML = `
+                <p>🧢 Хороший выбор! Кепка удобная. <strong>The cap is cool.</strong></p>
+                <p>🏖️ Ты идёшь на пляж (<em>beach</em>).</p>
+                <p>🔥 На пляже жарко (<em>hot</em>). Ты хочешь купаться (<em>swim</em>).</p>
+            `;
+            addButton("🏊‍♀️ Искупаться в море", "swimGood");
+            addButton("🪑 Полежать на песке", "justSand");
+            vocabDiv.innerHTML = "📖 cap (кепка), beach (пляж), hot (жарко), swim (плавать)";
+        }
+        else if (state === "iceCream") {
+            storyDiv.innerHTML = `
+                <p>🍦 «Я люблю мороженое!» — говорит Лена.<br> <strong>I love ice cream!</strong></p>
+                <p>❄️ Мороженое холодное и сладкое (<em>cold and sweet</em>). Лена счастлива.</p>
+                <p>🍓 Потом она видит клубнику (<em>strawberries</em>).</p>
+            `;
+            addButton("🍓 Съесть клубнику → happy strawberry end", "strawberryEnd");
+            vocabDiv.innerHTML = "📖 love (любить), cold (холодный), sweet (сладкий), strawberries (клубника)";
+        }
+        else if (state === "butterfly") {
+            storyDiv.innerHTML = `
+                <p>🦋 Какая красивая бабочка! <strong>What a beautiful butterfly!</strong></p>
+                <p>😊 Лена улыбается. Она берёт с собой яблоко (<em>apple</em>) и идёт на траву (<em>grass</em>).</p>
+            `;
+            addButton("🌿 Сесть на траву → grass end", "grassEnd");
+            vocabDiv.innerHTML = "📖 beautiful (красивый), apple (яблоко), grass (трава)";
+        }
+        else if (state === "swimGood") {
+            storyDiv.innerHTML = `
+                <p>🌊 Лена плавает в море. <strong>It's so nice!</strong> Вода прохладная.</p>
+                <p>😎 Она чувствует себя хорошо. После купания она ест арбуз (<em>watermelon</em>).</p>
+            `;
+            addButton("🍉 Арбуз вкусный! → счастливый конец", "happyEnd");
+            vocabDiv.innerHTML = "📖 swim (плавать), sea (море), watermelon (арбуз)";
+        }
+        else if (state === "justSand") {
+            storyDiv.innerHTML = `
+                <p>🪑 Ты лежишь на песке. Очень жарко.<br> Лена забыла воду (<em>water</em>).</p>
+                <p>🚶‍♀️ Она идёт домой пить воду.</p>
+            `;
+            addButton("💧 Выпить воду → end", "drinkWaterEnd");
+            vocabDiv.innerHTML = "📖 sand (песок), water (вода), hot (жарко), home (дом)";
+        }
+        else if (state === "strawberryEnd") {
+            storyDiv.innerHTML = `
+                <p>🍓 Клубника красная и сочная! <strong>Red and juicy.</strong></p>
+                <p>🧡 Лена говорит: «Лето — это мороженое и клубника!» <br> <em>Summer is ice cream and strawberries!</em></p>
+                <p>🎉 Ты молодец! Летний словарь готов:</p>
+                <p>☀️ summer &nbsp;| 🧢 hat &nbsp;| 🍦 ice cream &nbsp;| 🦋 butterfly &nbsp;| 🍓 strawberry</p>
+            `;
+            addButton("🔄 Начать сначала", "start");
+            vocabDiv.innerHTML = "✅ ПОЛЕЗНАЯ ЛЕКСИКА: summer, hat, ice cream, butterfly, strawberry, red, juicy";
+        }
+        else if (state === "grassEnd") {
+            storyDiv.innerHTML = `
+                <p>🌱 На траве тепло. Лена слышит птиц (<em>birds</em>).<br>
+                🌸 Она видит цветок (<em>flower</em>).</p>
+                <p>💛 «Мне нравится лето. <strong>I like summer!</strong>»</p>
+                <p>📚 Лексика: grass, butterfly, apple, bird, flower.</p>
+            `;
+            addButton("🎮 Играть снова", "start");
+            vocabDiv.innerHTML = "🦜 bird (птица), flower (цветок), like summer (любить лето)";
+        }
+        else if (state === "happyEnd") {
+            storyDiv.innerHTML = `
+                <p>🍉 Ммм... арбуз очень сладкий (<em>very sweet</em>).<br>
+                😍 Лена счастлива. Она говорит: <strong>«Swimming + watermelon = perfect summer!»</strong></p>
+                <p>🏆 Твои летние слова: beach, swim, hot, watermelon, happy.</p>
+            `;
+            addButton("🌟 Начать заново", "start");
+            vocabDiv.innerHTML = "🌊 beach, 🏊‍♀️ swim, 🔥 hot, 🍉 watermelon, 😊 happy";
+        }
+        else if (state === "drinkWaterEnd") {
+            storyDiv.innerHTML = `
+                <p>💧 Лена пьёт холодную воду. Теперь ей не жарко.<br>
+                🧊 <strong>Water helps on a hot day.</strong> (Вода помогает в жаркий день)</p>
+                <p>📖 Слова: water, hot, sand, home.</p>
+            `;
+            addButton("♻️ Начать сначала", "start");
+            vocabDiv.innerHTML = "🥤 water (вода), hot day (жаркий день), sand (песок)";
+        }
+        else {
+            storyDiv.innerHTML = "Ошибка, но лето близко! Нажми сброс.";
+            addButton("🔁 Начать игру", "start");
+        }
+    }
+
+    function addButton(text, nextState) {
+        const btn = document.createElement("button");
+        btn.innerText = text;
+        btn.addEventListener("click", () => {
+            currentState = nextState;
+            render(currentState);
+        });
+        document.getElementById("buttonsArea").appendChild(btn);
+    }
+
+    // старт игры
+    render("start");
+</script>
+</body>
+</html>
