@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Summer Pet Peeves - Choose Your Reaction</title>
+    <style>
+        body {
+            font-family: 'Comic Neue', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5a623, #f7d794);
+            color: #2d1b00;
+            text-align: center;
+            padding: 30px;
+            margin: 0;
+        }
+        .game-container {
+            max-width: 700px;
+            margin: auto;
+            background: #fff9e8;
+            border-radius: 40px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 3px solid #ffb347;
+        }
+        h1 {
+            font-size: 2.2em;
+            margin-top: 0;
+            color: #e67e22;
+        }
+        .story {
+            font-size: 1.3em;
+            line-height: 1.4;
+            background: #fff2db;
+            padding: 20px;
+            border-radius: 25px;
+            margin: 20px 0;
+        }
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        button {
+            background: #ffb347;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d1b00;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            background: #ff9f1a;
+            transform: scale(1.02);
+        }
+        .stats {
+            font-size: 1.1em;
+            background: #e6ccb2;
+            padding: 10px;
+            border-radius: 30px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .restart {
+            background: #d2691e;
+            color: white;
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #5a3a1a;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="game">
+    <h1>🏖️ Survive the Summer 🦟</h1>
+    <div class="story" id="story">
+        Welcome! Your goal: survive 3 summer annoyances.<br>
+        Your choices affect your mood and energy.
+    </div>
+    <div class="choices" id="choices">
+        <button id="startBtn">🌞 Start Summer Adventure</button>
+    </div>
+    <div class="stats" id="stats">✨ Calm: 0 | ⚡ Energy: 0</div>
+    <footer>Choose wisely... or dramatically. 😎</footer>
+</div>
+
+<script>
+    // Game state
+    let calm = 0;
+    let energy = 0;
+    let step = 0; // 0=start, 1=bus, 2=chair, 3=mosquito, 4=ending
+
+    function updateStats() {
+        document.getElementById('stats').innerHTML = `✨ Calm: ${calm} | ⚡ Energy: ${energy}`;
+    }
+
+    function showStart() {
+        document.getElementById('story').innerHTML = "🏁 You wake up. It's a hot summer day. Three annoying things will happen. Your reactions matter. Ready?";
+        const choicesDiv = document.getElementById('choices');
+        choicesDiv.innerHTML = '<button id="startBtn">🌞 Start Summer Adventure</button>';
+        document.getElementById('startBtn').onclick = () => { step = 1; showBus(); };
+        updateStats();
+    }
+
+    function showBus() {
+        calm = 0; energy = 0; step = 1;
+        updateStats();
+        document.getElementById('story').innerHTML = "🚌 Episode 1: The Bus of Doom<br><br>You're on the bus to the beach. A teenager behind you watches TikTok videos at FULL volume. No headphones. Your ears are bleeding. What do you do?";
+        const choicesDiv = document.getElementById('choices');
+        choicesDiv.innerHTML = `
+            <button id="choice1">😤 "I can't stand it when you do that. Could you use headphones?" (Polite)</button>
+            <button id="choice2">🤬 "It drives me crazy! Turn it off NOW!" (Aggressive)</button>
+            <button id="choice3">🎧 Put on your own headphones and suffer silently (Silent)</button>
+            <button id="choice4">🗣️ Tell your friend (loud enough for everyone): "Why do people have to be so rude?" (Passive-aggressive)</button>
+        `;
+        document.getElementById('choice1').onclick = () => { calm += 1; step = 2; showChair(); };
+        document.getElementById('choice2').onclick = () => { calm -= 1; step = 2; showChair(); };
+        document.getElementById('choice3').onclick = () => { step = 2; showChair(); };
+        document.getElementById('choice4').onclick = () => { step = 2; showChair(); };
+    }
+
+    function showChair() {
+        updateStats();
+        document.getElementById('story').innerHTML = "🪑 Episode 2: The Wet Chair Mystery<br><br>You come home from the beach. On YOUR computer chair lies your sister's soaking wet swimsuit. The seat is dripping. What do you do?";
+        const choicesDiv = document.getElementById('choices');
+        choicesDiv.innerHTML = `
+            <button id="choice1">😠 Shout: "I'm so fed up with your wet swimsuit!" (Angry)</button>
+            <button id="choice2">🧺 Hang the swimsuit to dry and sit on another chair (Mature)</button>
+            <button id="choice3">🪄 Put the wet swimsuit on her bed as revenge (Revenge)</button>
+            <button id="choice4">😌 "What really gets on my nerves is wet clothes on my chair. Please don't." (Calm & clear)</button>
+        `;
+        document.getElementById('choice1').onclick = () => { calm -= 1; step = 3; showMosquito(); };
+        document.getElementById('choice2').onclick = () => { calm += 1; step = 3; showMosquito(); };
+        document.getElementById('choice3').onclick = () => { calm -= 2; step = 3; showMosquito(); };
+        document.getElementById('choice4').onclick = () => { calm += 1; step = 3; showMosquito(); };
+    }
+
+    function showMosquito() {
+        updateStats();
+        document.getElementById('story').innerHTML = "🦟 Episode 3: Midnight Mosquito<br><br>It's 1 AM. You're almost asleep. Then you hear it: BBBZZZZZZ... right next to your ear. The mosquito is here. What's your move?";
+        const choicesDiv = document.getElementById('choices');
+        choicesDiv.innerHTML = `
+            <button id="choice1">🔦 Turn on the light and hunt for 20 mins (will be hard to sleep after)</button>
+            <button id="choice2">🛌 Cover your head with a blanket and suffer (hot & stuffy)</button>
+            <button id="choice3">😩 Say aloud to the void: "It drives me crazy when you do this, mosquito." Then try to sleep</button>
+            <button id="choice4">🌀 Turn the fan on max (bye bye mosquito, hello noise)</button>
+        `;
+        document.getElementById('choice1').onclick = () => { energy -= 1; step = 4; showEnding(); };
+        document.getElementById('choice2').onclick = () => { energy -= 1; step = 4; showEnding(); };
+        document.getElementById('choice3').onclick = () => { energy -= 2; step = 4; showEnding(); };
+        document.getElementById('choice4').onclick = () => { energy += 1; step = 4; showEnding(); };
+    }
+
+    function showEnding() {
+        updateStats();
+        let total = calm + energy;
+        let endingText = "";
+        let emoji = "";
+
+        if (total >= 3) {
+            endingText = "🏆 Summer Hero! You got a giant ice cream cone and awesome vibes. Even the pet peeves couldn't ruin your day. Well played!";
+            emoji = "🍦🎉";
+        } else if (total >= 1) {
+            endingText = "🌊 Summer Survivor. Your day was okay. Small ice cream, but still tasty. Tomorrow will be better.";
+            emoji = "🍦👍";
+        } else if (total >= -1) {
+            endingText = "😤 Summer Grump. You're tired and annoyed. Your ice cream melted on the way home. Maybe next summer?";
+            emoji = "😩🥵";
+        } else {
+            endingText = "💥 Summer Meltdown. You screamed into a pillow. No ice cream for you (parents said: 'Calm down first'). Ouch.";
+            emoji = "😭🛌";
+        }
+
+        document.getElementById('story').innerHTML = `🏁 FINALE<br><br>${endingText}<br><br>${emoji}<br><br>Total score: Calm ${calm} + Energy ${energy} = ${total} points.`;
+        const choicesDiv = document.getElementById('choices');
+        choicesDiv.innerHTML = '<button id="restartBtn">🔄 Play Again</button>';
+        document.getElementById('restartBtn').onclick = () => { showStart(); };
+    }
+
+    document.getElementById('startBtn').onclick = () => { showBus(); };
+    if (document.getElementById('startBtn')) {
+        document.getElementById('startBtn').onclick = () => { showBus(); };
+    } else {
+        showStart();
+    }
+</script>
+</body>
+</html>
