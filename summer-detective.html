@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Summer Peeves Detective</title>
+    <style>
+        body {
+            font-family: 'Comic Neue', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e90ff, #87ceeb);
+            color: #1a2a3a;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .game-container {
+            max-width: 750px;
+            margin: auto;
+            background: #fffef7;
+            border-radius: 40px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 3px solid #ffcc00;
+        }
+        h1 {
+            font-size: 1.8em;
+            margin-top: 0;
+            color: #ff8c00;
+        }
+        .story {
+            font-size: 1.2em;
+            line-height: 1.4;
+            background: #fff0db;
+            padding: 20px;
+            border-radius: 25px;
+            margin: 15px 0;
+            min-height: 120px;
+        }
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        button {
+            background: #ffaa33;
+            border: none;
+            padding: 10px 16px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2d1b00;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #ff9900;
+            transform: scale(1.02);
+        }
+        .char-panel {
+            background: #ffe4b5;
+            padding: 15px;
+            border-radius: 30px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+        .char-name {
+            font-weight: bold;
+            background: #ffcc88;
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 5px;
+        }
+        .clue-list {
+            text-align: left;
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .stats {
+            background: #c0d6e8;
+            padding: 8px;
+            border-radius: 30px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        footer {
+            margin-top: 15px;
+            font-size: 0.75em;
+            color: #2c4a6e;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="game">
+    <h1>🕵️‍♂️ Summer Peeves Detective 🧐</h1>
+    <div class="story" id="story">
+        Four friends spent a week at summer camp.<br>
+        Each has ONE summer pet peeve.<br>
+        Your job: interview them and guess correctly!
+    </div>
+    <div class="char-panel">
+        <span class="char-name">👧 Maya</span>
+        <span class="char-name">🧑 Leo</span>
+        <span class="char-name">👩 Chloe</span>
+        <span class="char-name">🧑‍🦱 Sam</span>
+    </div>
+    <div class="choices" id="choices">
+        <button id="startBtn">🔍 Start Detective Work</button>
+    </div>
+    <div class="stats" id="stats">
+        ❓ Suspects left: 4 | ✅ Correct guesses: 0/4
+    </div>
+    <div class="clue-list" id="clues">
+        📋 Clues will appear here as you talk...
+    </div>
+    <footer>Ask questions. Listen carefully. Each character reveals 2-3 hints.</footer>
+</div>
+
+<script>
+    // Game state
+    let interviewed = {
+        maya: false,
+        leo: false,
+        chloe: false,
+        sam: false
+    };
+    let guesses = {
+        maya: null,
+        leo: null,
+        chloe: null,
+        sam: null
+    };
+    let correctCount = 0;
+    let gamePhase = "interview"; // interview or guessing
+    
+    // The REAL pet peeves (hidden from player)
+    const realPeeves = {
+        maya: "loud chewing / eating sounds",
+        leo: "wet swimsuit on furniture",
+        chloe: "people watching videos without headphones",
+        sam: "mosquitoes at night"
+    };
+    
+    const peeveList = [
+        "loud chewing / eating sounds",
+        "wet swimsuit on furniture",
+        "people watching videos without headphones",
+        "mosquitoes at night"
+    ];
+    
+    function updateUI() {
+        let left = 0;
+        for (let p in interviewed) if (!interviewed[p]) left++;
+        document.getElementById('stats').innerHTML = `❓ Suspects left: ${left} | ✅ Correct guesses: ${correctCount}/4`;
+        
+        // Show current guesses
+        let guessText = "";
+        for (let [char, guess] of Object.entries(guesses)) {
+            if (guess) {
+                let emoji = char === "maya" ? "👧" : char === "leo" ? "🧑" : char === "chloe" ? "👩" : "🧑‍🦱";
+                guessText += `${emoji} ${char.toUpperCase()}: ${guess}<br>`;
+            }
+        }
+        if (guessText === "") guessText = "No guesses yet.";
+        document.getElementById('clues').innerHTML = `📋 Clues & guesses:<br>${guessText}`;
+        
+        // Check if all guessed
+        let allGuessed = true;
+        for (let g of Object.values(guesses)) if (!g) allGuessed = false;
+        if (allGuessed && gamePhase !== "result") {
+            showResult();
+        }
+    }
+    
+    function addClue(text) {
+        let clueDiv = document.getElementById('clues');
+        clueDiv.innerHTML = `📋 ${text}<br><br>` + clueDiv.innerHTML;
+        if (clueDiv.innerHTML.length > 800) clueDiv.innerHTML = clueDiv.innerHTML.slice(0, 700);
+    }
+    
+    function showMainMenu() {
+        document.getElementById('story').innerHTML = "You're at the summer camp. Who do you want to talk to?<br>Ask them questions to discover their secret pet peeve!";
+        let buttons = `
+            <button id="talkMaya">👧 Talk to Maya</button>
+            <button id="talkLeo">🧑 Talk to Leo</button>
+            <button id="talkChloe">👩 Talk to Chloe</button>
+            <button id="talkSam">🧑‍🦱 Talk to Sam</button>
+            <button id="guessBtn">🎯 I'm ready to guess!</button>
+        `;
+        document.getElementById('choices').innerHTML = buttons;
+        
+        document.getElementById('talkMaya').onclick = () => talkTo("maya");
+        document.getElementById('talkLeo').onclick = () => talkTo("leo");
+        document.getElementById('talkChloe').onclick = () => talkTo("chloe");
+        document.getElementById('talkSam').onclick = () => talkTo("sam");
+        document.getElementById('guessBtn').onclick = () => startGuessing();
+    }
+    
+    function talkTo(character) {
+        if (gamePhase !== "interview") return;
+        interviewed[character] = true;
+        
+        let charName = "";
+        let dialogue = "";
+        let hints = [];
+        
+        if (character === "maya") {
+            charName = "Maya";
+            dialogue = "Maya: 'Ugh, summer is great but... when my brother eats chips with his mouth open, I just can't. It drives me crazy.'";
+            hints = [
+                "Maya mentioned sounds while eating.",
+                "She said 'It drives me crazy when someone eats loudly.'",
+                "Maya hates mouth noises, not insects or wet things."
+            ];
+        } else if (character === "leo") {
+            charName = "Leo";
+            dialogue = "Leo: 'Why do people have to leave wet towels and swimsuits everywhere? I'm so fed up with sitting on a wet chair.'";
+            hints = [
+                "Leo hates wet swimsuits left on seats.",
+                "He said: 'I can't stand it when my chair is wet.'",
+                "Not about phones or mosquitoes — about wet fabric."
+            ];
+        } else if (character === "chloe") {
+            charName = "Chloe";
+            dialogue = "Chloe: 'What really gets on my nerves is when someone watches TikTok on full volume. On a bus, in a queue — everywhere! Use headphones!'";
+            hints = [
+                "Chloe can't stand loud videos without headphones.",
+                "She mentioned public transport and TikTok.",
+                "Her annoyance is about sound from devices."
+            ];
+        } else if (character === "sam") {
+            charName = "Sam";
+            dialogue = "Sam: 'Every night — BZZZZZZ. Mosquitoes near my ear. I'm so fed up with waking up with new bites. Why do they exist?'";
+            hints = [
+                "Sam hates mosquitoes at night.",
+                "He talked about buzzing and bites.",
+                "His pet peeve is insects, not people."
+            ];
+        }
+        
+        document.getElementById('story').innerHTML = `💬 Talking to ${charName}<br><br>${dialogue}<br><br><i>What have you learned?</i>`;
+        addClue(`🔍 ${charName}: ${hints[0]}`);
+        addClue(`🔍 ${charName}: ${hints[1]}`);
+        
+        // After interview, return to menu
+        setTimeout(() => {
+            showMainMenu();
+            updateUI();
+        }, 3000);
+    }
+    
+    function startGuessing() {
+        if (gamePhase !== "interview") return;
+        gamePhase = "guessing";
+        document.getElementById('story').innerHTML = "🎯 Time to make your guesses!<br>Match each person with their summer pet peeve.";
+        
+        let guessHTML = "";
+        for (let [char, _] of Object.entries(realPeeves)) {
+            let charDisplay = char === "maya" ? "👧 Maya" : char === "leo" ? "🧑 Leo" : char === "chloe" ? "👩 Chloe" : "🧑‍🦱 Sam";
+            let options = peeveList.map(p => `<option value="${p}">${p}</option>`).join('');
+            guessHTML += `
+                <div style="margin: 15px 0;">
+                    <strong>${charDisplay}</strong><br>
+                    <select id="select_${char}">
+                        <option value="">-- Choose pet peeve --</option>
+                        ${options}
+                    </select>
+                </div>
+            `;
+        }
+        guessHTML += `<button id="submitGuesses">✅ Submit my detective report</button>`;
+        document.getElementById('choices').innerHTML = guessHTML;
+        document.getElementById('submitGuesses').onclick = submitGuesses;
+    }
+    
+    function submitGuesses() {
+        let newGuesses = {};
+        for (let char of ["maya", "leo", "chloe", "sam"]) {
+            let select = document.getElementById(`select_${char}`);
+            if (select && select.value) {
+                newGuesses[char] = select.value;
+            } else {
+                alert(`You forgot to guess for ${char.toUpperCase()}!`);
+                return;
+            }
+        }
+        
+        guesses = newGuesses;
+        correctCount = 0;
+        for (let [char, guess] of Object.entries(guesses)) {
+            if (guess === realPeeves[char]) correctCount++;
+        }
+        updateUI();
+        showResult();
+    }
+    
+    function showResult() {
+        gamePhase = "result";
+        let resultText = `<strong>🏁 Detective Report 🏁</strong><br><br>`;
+        for (let [char, real] of Object.entries(realPeeves)) {
+            let guess = guesses[char] || "No guess";
+            let emoji = char === "maya" ? "👧" : char === "leo" ? "🧑" : char === "chloe" ? "👩" : "🧑‍🦱";
+            let isCorrect = (guess === real);
+            resultText += `${emoji} ${char.toUpperCase()}: `;
+            resultText += isCorrect ? `✅ Correct (${real})` : `❌ You said "${guess}" but real is "${real}"`;
+            resultText += `<br>`;
+        }
+        resultText += `<br>🎯 You got ${correctCount}/4 correct!<br><br>`;
+        if (correctCount === 4) {
+            resultText += "🏆 PERFECT! You're a Summer Peeves Detective Master! 🕵️‍♂️🍦";
+        } else if (correctCount >= 2) {
+            resultText += "👍 Good job! Next summer you'll be even better at spotting pet peeves.";
+        } else {
+            resultText += "😅 Oops! Maybe ask more questions next time. Want to play again?";
+        }
+        resultText += `<br><br><button id="playAgain">🔄 Play Again</button>`;
+        
+        document.getElementById('story').innerHTML = resultText;
+        document.getElementById('choices').innerHTML = "";
+        document.getElementById('playAgain').onclick = () => location.reload();
+        updateUI();
+    }
+    
+    // Initialize
+    document.getElementById('startBtn').onclick = () => {
+        gamePhase = "interview";
+        showMainMenu();
+        updateUI();
+    };
+    if (document.getElementById('startBtn')) {
+        document.getElementById('startBtn').onclick = () => {
+            gamePhase = "interview";
+            showMainMenu();
+            updateUI();
+        };
+    }
+</script>
+</body>
+</html>
