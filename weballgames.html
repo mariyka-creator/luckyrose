@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>English Games Portal | A1 - C1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e4b6e, #f39c12);
+            font-family: 'Segoe UI', 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .portal-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #fff8e7, #ffecb3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+        }
+
+        .subhead {
+            font-size: 1.2rem;
+            color: #fff3cf;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .teacher-note {
+            background: rgba(255,255,200,0.2);
+            backdrop-filter: blur(4px);
+            border-radius: 50px;
+            padding: 12px 24px;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        /* Filter by level */
+        .filter-bar {
+            background: rgba(255,255,240,0.9);
+            border-radius: 60px;
+            padding: 12px 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .filter-label {
+            font-weight: bold;
+            color: #b45f1b;
+        }
+        .level-filter-btn {
+            background: #ffe0a3;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #7b4a1a;
+        }
+        .level-filter-btn.active {
+            background: #f39c12;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .level-filter-btn:hover {
+            background: #ffcd74;
+        }
+
+        /* Game Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .game-card {
+            background: #fffef7;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            border: 3px solid #ffd966;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+            border-color: #f39c12;
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            text-align: center;
+            padding: 30px 0 15px;
+            background: #fdf6e3;
+        }
+
+        .game-info {
+            padding: 20px 25px 25px;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #c4450c;
+            margin-bottom: 8px;
+        }
+
+        .game-level {
+            display: inline-block;
+            background: #ffb347;
+            color: white;
+            border-radius: 30px;
+            padding: 4px 16px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .game-desc {
+            color: #5a4a2e;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .play-btn {
+            background: #2e7d64;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            box-shadow: 0 4px 0 #1b5a47;
+            width: 100%;
+        }
+
+        .play-btn:hover {
+            background: #3a9b7e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #1b5a47;
+        }
+
+        /* Admin panel (за паролем) */
+        .admin-panel {
+            background: #fff1df;
+            border-radius: 50px;
+            padding: 25px 30px;
+            margin-top: 30px;
+            border: 3px dashed #f39c12;
+        }
+        .admin-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #b45f1b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .lock-btn {
+            background: #95a5a6;
+            border: none;
+            padding: 5px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .admin-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 140px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #7b4a1a;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 50px;
+            border: 2px solid #ffcd94;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: white;
+        }
+        .add-game-btn {
+            background: #f39c12;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 3px 0 #b45f1b;
+        }
+        .reset-btn {
+            background: #95a5a6;
+            box-shadow: 0 3px 0 #7f8c8d;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #fff0c0;
+            font-size: 0.8rem;
+        }
+        .qr-small {
+            font-size: 0.7rem;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+        .password-prompt {
+            background: #ffe0b5;
+            border-radius: 50px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 700px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            .admin-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="portal-container">
+    <div class="header">
+        <h1>🎮 English Games Portal</h1>
+        <div class="subhead">🌟 Learn English through interactive stories | A1 to C1 🌟</div>
+        <div class="teacher-note">
+            👩‍🏫 Teacher: share this link with students! <br>
+            📱 All games work on phones and computers
+        </div>
+    </div>
+
+    <!-- Фильтр по уровням -->
+    <div class="filter-bar">
+        <span class="filter-label">🔍 Filter by level:</span>
+        <button class="level-filter-btn active" data-level="all">All</button>
+        <button class="level-filter-btn" data-level="A1">A1</button>
+        <button class="level-filter-btn" data-level="A2">A2</button>
+        <button class="level-filter-btn" data-level="B1">B1</button>
+        <button class="level-filter-btn" data-level="B2">B2</button>
+        <button class="level-filter-btn" data-level="C1">C1</button>
+    </div>
+
+    <div id="gamesGrid" class="games-grid">
+        <!-- игры динамически -->
+    </div>
+
+    <!-- Панель учителя (скрыта за паролем) -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-title">
+            🔧 Teacher's panel — manage games
+            <button id="unlockAdminBtn" class="lock-btn">🔒 Unlock with password</button>
+        </div>
+        <div id="adminContent" class="hidden">
+            <div class="admin-form">
+                <div class="form-group">
+                    <label>🎮 Game title</label>
+                    <input type="text" id="gameTitle" placeholder="e.g., Summer Detective">
+                </div>
+                <div class="form-group">
+                    <label>📖 Description</label>
+                    <input type="text" id="gameDesc" placeholder="Solve a mystery!">
+                </div>
+                <div class="form-group">
+                    <label>🔗 Full link (GitHub Pages)</label>
+                    <input type="text" id="gameLink" placeholder="https://yourname.github.io/game.html">
+                </div>
+                <div class="form-group">
+                    <label>⭐ Level (CEFR)</label>
+                    <select id="gameLevel">
+                        <option value="A1">A1 (Beginner)</option>
+                        <option value="A2">A2 (Elementary)</option>
+                        <option value="B1">B1 (Intermediate)</option>
+                        <option value="B2">B2 (Upper Intermediate)</option>
+                        <option value="C1">C1 (Advanced)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>🎨 Icon (emoji)</label>
+                    <input type="text" id="gameIcon" placeholder="🕵️‍♀️" value="🎲" maxlength="6">
+                </div>
+                <button class="add-game-btn" id="addGameBtn">➕ Add game</button>
+                <button class="add-game-btn reset-btn" id="resetDefaultBtn">↻ Reset to examples</button>
+            </div>
+            <p style="font-size: 0.7rem; margin-top: 12px; color:#a4652a;">
+                💡 Games are saved in your browser (localStorage). You can add, edit, delete them.
+            </p>
+        </div>
+        <div id="passwordPrompt" class="password-prompt hidden">
+            <p>🔐 Enter teacher's password to edit games:</p>
+            <input type="password" id="adminPassword" placeholder="password" style="padding:8px 16px; border-radius:40px; border:1px solid #f39c12;">
+            <button id="submitPasswordBtn" style="margin-left:10px; padding:8px 20px; background:#f39c12; border:none; border-radius:40px;">Submit</button>
+            <p style="font-size:0.7rem; margin-top:8px;">(default password: <strong>summer2025</strong> — you can change it in the code)</p>
+        </div>
+    </div>
+    <div class="footer">
+        🌞 Interactive English games | For learners A1-C1
+    </div>
+</div>
+
+<script>
+    // ======================== НАСТРОЙКИ ========================
+    const TEACHER_PASSWORD = "summer2025";  // 🔑 СМЕНИТЕ ПАРОЛЬ ЗДЕСЬ!
+    
+    // ======================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ========================
+    let games = [];
+    let currentLevelFilter = "all";
+    let adminUnlocked = false;
+    
+    // ======================== ЗАГРУЗКА / СОХРАНЕНИЕ ========================
+    function loadGames() {
+        const saved = localStorage.getItem("englishPortalGames_v2");
+        if (saved) {
+            games = JSON.parse(saved);
+        } else {
+            // Примеры игр с разными уровнями (A1 - C1)
+            games = [
+                {
+                    id: "summer_detective_a2",
+                    title: "🕵️‍♀️ Summer Detective",
+                    description: "Who stole the ice cream? Collect clues, solve the summer mystery! Very simple English.",
+                    link: "https://mariyka-creator.github.io/luckyrose/detective-a2.html",
+                    level: "A2",
+                    icon: "🕵️‍♀️🍦"
+                },
+                {
+                    id: "lena_picnic_a1",
+                    title: "🧺 Lena's Summer Picnic",
+                    description: "Choose clothes, eat ice cream, pick strawberries — learn summer words (A1).",
+                    link: "https://mariyka-creator.github.io/luckyrose/",
+                    level: "A1",
+                    icon: "🧺🌞"
+                },
+                {
+                    id: "summer_survival_b1",
+                    title: "🏖️ Survive the Summer B1",
+                    description: "Survive 3 summer annoyances. Level B1.",
+                    link: "https://mariyka-creator.github.io/luckyrose/petpeeves.html",
+                    level: "B1",
+                    icon: "🕶️🏖️"
+                },
+                {
+                    id: "travel_story_b1",
+                    title: "🕵️‍♂️ SUMMER PEEVES DETECTIVE B1",
+                    description: "Investigate the case. Interview friends and solve the case.",
+                    link: "https://mariyka-creator.github.io/luckyrose/summer-detective.html",
+                    level: "B1",
+                    icon: "📋"
+                }
+            ];
+            saveGames();
+        }
+        renderGames();
+    }
+    
+    function saveGames() {
+        localStorage.setItem("englishPortalGames_v2", JSON.stringify(games));
+    }
+    
+    // ======================== ФИЛЬТРАЦИЯ И ОТРИСОВКА ========================
+    function renderGames() {
+        const grid = document.getElementById("gamesGrid");
+        if (!grid) return;
+        
+        let filteredGames = games;
+        if (currentLevelFilter !== "all") {
+            filteredGames = games.filter(g => g.level === currentLevelFilter);
+        }
+        
+        if (filteredGames.length === 0) {
+            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; background:#fff3cf; border-radius:40px; padding:40px;">✨ No games for this level yet. Teacher can add more! ✨</div>`;
+            return;
+        }
+        
+        grid.innerHTML = "";
+        filteredGames.forEach((game, idx) => {
+            const originalIndex = games.findIndex(g => g.id === game.id);
+            const card = document.createElement("div");
+            card.className = "game-card";
+            card.innerHTML = `
+                <div class="game-icon">${game.icon || "🎮"}</div>
+                <div class="game-info">
+                    <div class="game-title">${escapeHtml(game.title)}</div>
+                    <div class="game-level">⭐ ${game.level}</div>
+                    <div class="game-desc">${escapeHtml(game.description)}</div>
+                    <button class="play-btn" data-index="${originalIndex}">🎯 PLAY NOW →</button>
+                    <div class="qr-small">📱 works on any device</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        
+        // обработчики на кнопки Play
+        document.querySelectorAll('.play-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = btn.getAttribute('data-index');
+                if (idx !== null && games[idx] && games[idx].link) {
+                    let url = games[idx].link;
+                    if (url !== "#" && url !== "") {
+                        window.open(url, '_blank');
+                    } else {
+                        alert("🔧 Teacher: please set the correct game link in the panel!\n\nExample: https://yourname.github.io/game.html");
+                    }
+                } else {
+                    alert("Game link is missing. Use the panel to add full URL.");
+                }
+            });
+        });
+    }
+    
+    // ======================== ДОБАВЛЕНИЕ / УДАЛЕНИЕ / РЕДАКТИРОВАНИЕ ========================
+    function addGame() {
+        const title = document.getElementById("gameTitle").value.trim();
+        const desc = document.getElementById("gameDesc").value.trim();
+        let link = document.getElementById("gameLink").value.trim();
+        const level = document.getElementById("gameLevel").value;
+        let icon = document.getElementById("gameIcon").value.trim();
+        
+        if (!title) { alert("Please enter game title"); return; }
+        if (!link) { alert("Please enter the full game link (GitHub Pages URL)"); return; }
+        if (!link.startsWith("http")) { alert("Link must start with https:// or http://"); return; }
+        if (!desc) { alert("Please write a short description"); return; }
+        if (!icon) icon = "🎮";
+        
+        const newGame = {
+            id: Date.now().toString(),
+            title: title,
+            description: desc,
+            link: link,
+            level: level,
+            icon: icon
+        };
+        
+        games.push(newGame);
+        saveGames();
+        renderGames();
+        
+        document.getElementById("gameTitle").value = "";
+        document.getElementById("gameDesc").value = "";
+        document.getElementById("gameLink").value = "";
+        document.getElementById("gameIcon").value = "🎲";
+        
+        alert(`✅ Game "${title}" added (${level})!`);
+    }
+    
+    function resetToExamples() {
+        if (confirm("⚠️ Replace all games with examples? Your added games will be lost.\n\nProceed?")) {
+            games = [
+                {
+                    id: "summer_detective_a1",
+                    title: "🕵️‍♀️ Summer Detective",
+                    description: "Who stole the ice cream? Collect clues, solve the summer mystery! Very simple English.",
+                    link: "#",
+                    level: "A1",
+                    icon: "🕵️‍♀️🍦"
+                },
+                {
+                    id: "lena_picnic_a1",
+                    title: "🧺 Lena's Summer Picnic",
+                    description: "Choose clothes, eat ice cream, pick strawberries — learn summer words (A1).",
+                    link: "#",
+                    level: "A1",
+                    icon: "🧺🌞"
+                },
+                {
+                    id: "beach_mystery_a2",
+                    title: "🏖️ Beach Mystery A2",
+                    description: "A missing sunglasses case. Talk to suspects, use past simple. Level A2.",
+                    link: "#",
+                    level: "A2",
+                    icon: "🕶️🏖️"
+                },
+                {
+                    id: "travel_story_b1",
+                    title: "✈️ Summer Trip B1",
+                    description: "Plan a holiday, solve travel problems. Practise conditionals and future forms.",
+                    link: "#",
+                    level: "B1",
+                    icon: "✈️🌍"
+                }
+            ];
+            saveGames();
+            renderGames();
+            alert("Demo games restored. Don't forget to replace # with your real GitHub Pages links!");
+        }
+    }
+    
+    // ======================== ПАРОЛЬ ДЛЯ УЧИТЕЛЯ ========================
+    function checkPasswordAndUnlock(pwd) {
+        if (pwd === TEACHER_PASSWORD) {
+            adminUnlocked = true;
+            document.getElementById("adminContent").classList.remove("hidden");
+            document.getElementById("passwordPrompt").classList.add("hidden");
+            alert("✅ Panel unlocked! You can now add or edit games.");
+        } else {
+            alert("❌ Wrong password! Access denied.");
+        }
+    }
+    
+    function showPasswordPrompt() {
+        document.getElementById("passwordPrompt").classList.remove("hidden");
+        document.getElementById("adminContent").classList.add("hidden");
+        adminUnlocked = false;
+    }
+    
+    // ======================== ФИЛЬТРЫ ========================
+    function setupFilters() {
+        const btns = document.querySelectorAll('.level-filter-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLevelFilter = btn.getAttribute('data-level');
+                renderGames();
+            });
+        });
+    }
+    
+    // ======================== ВСПОМОГАТЕЛЬНЫЕ ========================
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+    
+    // ======================== INIT ========================
+    document.addEventListener("DOMContentLoaded", () => {
+        loadGames();
+        setupFilters();
+        
+        const unlockBtn = document.getElementById("unlockAdminBtn");
+        const submitPwdBtn = document.getElementById("submitPasswordBtn");
+        const addBtn = document.getElementById("addGameBtn");
+        const resetBtn = document.getElementById("resetDefaultBtn");
+        const pwdInput = document.getElementById("adminPassword");
+        
+        unlockBtn.addEventListener("click", showPasswordPrompt);
+        submitPwdBtn.addEventListener("click", () => {
+            const pwd = pwdInput.value;
+            checkPasswordAndUnlock(pwd);
+            pwdInput.value = "";
+        });
+        addBtn.addEventListener("click", addGame);
+        resetBtn.addEventListener("click", resetToExamples);
+        
+        // если нажать Enter в поле пароля
+        pwdInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                checkPasswordAndUnlock(pwdInput.value);
+                pwdInput.value = "";
+            }
+        });
+    });
+</script>
+</body>
+</html>
