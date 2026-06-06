@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Packing Challenge - 60 Second Suitcase</title>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a6d8f, #0d3b4f);
+            font-family: 'Segoe UI', 'Comic Neue', 'Poppins', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Главный контейнер игры */
+        .game-container {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(255,248,225,0.95);
+            border-radius: 70px;
+            padding: 25px;
+            box-shadow: 0 30px 40px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,200,0.8);
+            backdrop-filter: blur(2px);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2.4em;
+            text-align: center;
+            margin: 0 0 5px;
+            background: linear-gradient(135deg, #f6b93b, #ff7e05);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sub {
+            text-align: center;
+            color: #2c5a6e;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Панель статуса */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            background: #e9dbbe;
+            padding: 10px 20px;
+            border-radius: 60px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .timer-box {
+            background: #2c2c2c;
+            color: #ffcc44;
+            font-size: 2.2rem;
+            font-weight: bold;
+            font-family: monospace;
+            padding: 5px 20px;
+            border-radius: 50px;
+            box-shadow: inset 0 0 5px gold, 0 5px 0 #1a1a1a;
+        }
+
+        .items-count {
+            background: #ffa559;
+            padding: 5px 18px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .destination-area {
+            background: #ffe3b5;
+            padding: 8px 15px;
+            border-radius: 40px;
+            font-weight: bold;
+        }
+
+        /* Сетка предметов */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 14px;
+            margin: 20px 0;
+            max-height: 380px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .item-card {
+            background: linear-gradient(145deg, #fff6e8, #ffe0b5);
+            border-radius: 35px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            border: 2px solid #ddb582;
+            box-shadow: 0 5px 0 #b97f3a;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .item-card.selected {
+            background: linear-gradient(145deg, #b9f6ca, #7ed56f);
+            border-color: #2e7d32;
+            box-shadow: 0 2px 0 #1b5e20;
+            transform: scale(0.98);
+            color: #1c441e;
+        }
+
+        .item-card:hover {
+            transform: translateY(-3px);
+            background: #ffe7c4;
+        }
+
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shakeSuitcase {
+            0% { transform: translate(1px, 1px);}
+            20% { transform: translate(-1px, -2px);}
+            40% { transform: translate(-2px, 2px);}
+            60% { transform: translate(2px, 1px);}
+            80% { transform: translate(1px, -1px);}
+            100% { transform: translate(0,0);}
+        }
+
+        .shake-animation {
+            animation: shakeSuitcase 0.5s ease-in-out;
+        }
+
+        .blink-red {
+            animation: blink 0.8s step-start infinite;
+        }
+
+        @keyframes blink {
+            50% { background-color: #e63946; color: white; box-shadow: 0 0 8px red; }
+        }
+
+        /* Кнопки */
+        button {
+            background: #ff8c42;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 12px 28px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 5px;
+            color: #2c1a0a;
+            box-shadow: 0 4px 0 #a35112;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #a35112;
+        }
+
+        .explanation-box {
+            background: #fef1df;
+            border-radius: 40px;
+            padding: 18px;
+            margin-top: 20px;
+            border-left: 12px solid #ffae5a;
+        }
+
+        textarea {
+            width: 100%;
+            border-radius: 28px;
+            padding: 15px;
+            font-size: 1rem;
+            font-family: monospace;
+            border: 2px solid #d9b48b;
+            background: #fffaf2;
+            resize: vertical;
+        }
+
+        .result-area {
+            background: #d9e8f5;
+            border-radius: 30px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 20px;
+            color: #5c4324;
+        }
+
+        @media (max-width: 700px) {
+            .items-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .timer-box { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="gameRoot">
+    <h1>🧳 60-SECOND SUITCASE ⏱️</h1>
+    <div class="sub">✨ Pack smart. You don't know your destination yet! ✨</div>
+
+    <!-- Панель статуса -->
+    <div class="status-bar">
+        <div class="timer-box" id="timerDisplay">01:00</div>
+        <div class="items-count" id="itemCounter">📦 0 / 8 items</div>
+        <div class="destination-area" id="destDisplay">❓ Destination unknown</div>
+    </div>
+
+    <!-- Сетка предметов -->
+    <div id="itemsGrid" class="items-grid"></div>
+
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button id="startBtn">🚀 START PACKING (60 sec)</button>
+        <button id="resetBtn">🔄 Reset & New Game</button>
+    </div>
+
+    <!-- Область для объяснений (output) -->
+    <div class="explanation-box" id="explanationBox">
+        <strong>📝 Your packing log (B1 output):</strong><br>
+        <textarea id="explanationText" rows="3" placeholder="After packing, explain why you chose each item... Example: 'I took sunscreen because UV is strong even in mountains.'"></textarea>
+        <button id="submitExplanation" style="margin-top: 8px;">💾 Save my reasoning</button>
+    </div>
+
+    <div id="resultPanel" class="result-area">
+        ⭐ Pack your items, then hit START. After 60s you'll discover your destination and get feedback!
+    </div>
+    <footer>🎒 Click items to select/unselect (max 8). Timer starts only when you press START.</footer>
+</div>
+
+<script>
+    // ---------- ИГРОВЫЕ ДАННЫЕ ----------
+    const allItems = [
+        "🏊 swimsuit", "☀️ sunscreen SPF50", "👖 jeans", "🩴 flip-flops", 
+        "🥾 hiking boots", "🔋 phone charger", "☔ umbrella", "💧 water bottle", 
+        "🧺 towel", "🧢 cap/hat", "🧥 hoodie", "🩳 shorts", 
+        "📖 book", "🔌 power bank", "🦟 mosquito spray", "👡 sandals", 
+        "🧥 rain jacket", "🕶️ sunglasses", "💻 laptop", "🍫 snacks"
+    ];
+
+    // Возможные направления
+    const destinations = {
+        beach: { name: "🏖️ BEACH (hot, sunny, lots of water)", tips: "swimsuit, sunscreen, flip-flops, towel, cap, sunglasses, water bottle, snacks" },
+        mountains: { name: "⛰️ MOUNTAINS (cold nights, sunny days, hiking)", tips: "hiking boots, hoodie, rain jacket, power bank, water bottle, sunscreen, snacks, mosquito spray" },
+        city: { name: "🏙️ BIG CITY (walking, restaurants, sightseeing)", tips: "comfortable sandals, phone charger, power bank, umbrella, light jacket, cap, snacks, book" },
+        camping: { name: "🏕️ CAMPING (forest, bugs, no shops nearby)", tips: "mosquito spray, water bottle, power bank, hoodie, rain jacket, snacks, towel, hiking boots" }
+    };
+
+    let selectedItems = [];      // выбранные предметы
+    let gameActive = false;      // идёт ли таймер
+    let timerInterval = null;
+    let timeSeconds = 60;
+    let destinationKey = null;    // станет известен только после таймера
+    let explanationsSaved = false;
+
+    // DOM элементы
+    const itemsGrid = document.getElementById('itemsGrid');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const itemCounterSpan = document.getElementById('itemCounter');
+    const destDisplay = document.getElementById('destDisplay');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const explanationText = document.getElementById('explanationText');
+    const submitExplanationBtn = document.getElementById('submitExplanation');
+    const resultPanel = document.getElementById('resultPanel');
+
+    // Отрисовка списка предметов
+    function renderItems() {
+        itemsGrid.innerHTML = '';
+        allItems.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            if (selectedItems.includes(item)) card.classList.add('selected');
+            card.innerText = item;
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (gameActive) {
+                    resultPanel.innerHTML = "⛔ Timer is running! You cannot change items now. Wait or reset.";
+                    return;
+                }
+                toggleItem(item);
+            });
+            itemsGrid.appendChild(card);
+        });
+        updateCounter();
+    }
+
+    function toggleItem(item) {
+        if (selectedItems.includes(item)) {
+            selectedItems = selectedItems.filter(i => i !== item);
+        } else {
+            if (selectedItems.length >= 8) {
+                resultPanel.innerHTML = "⚠️ Suitcase is full! Max 8 items. Remove something first.";
+                const container = document.querySelector('.game-container');
+                container.classList.add('shake-animation');
+                setTimeout(() => container.classList.remove('shake-animation'), 500);
+                return;
+            }
+            selectedItems.push(item);
+        }
+        renderItems();
+        resultPanel.innerHTML = "✅ Items selected: " + selectedItems.join(', ') + " — Ready to start packing?";
+        if (!gameActive && selectedItems.length === 8) {
+            resultPanel.innerHTML += "<br>🎯 You have 8 items! Press START to lock them in.";
+        }
+    }
+
+    function updateCounter() {
+        itemCounterSpan.innerHTML = `📦 ${selectedItems.length} / 8 items`;
+        if (selectedItems.length === 8) itemCounterSpan.style.background = "#a5d6a5";
+        else itemCounterSpan.style.background = "#ffa559";
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        gameActive = false;
+    }
+
+    // случайное направление
+    function getRandomDestination() {
+        const keys = Object.keys(destinations);
+        return keys[Math.floor(Math.random() * keys.length)];
+    }
+
+    function startPacking() {
+        if (gameActive) return;
+        if (selectedItems.length === 0) {
+            resultPanel.innerHTML = "❌ You can't travel with an empty suitcase! Add at least 1 item.";
+            return;
+        }
+        if (selectedItems.length > 8) {
+            resultPanel.innerHTML = "❌ Too many items! Remove some (max 8).";
+            return;
+        }
+
+        // сброс предыдущих объяснений
+        explanationsSaved = false;
+        explanationText.value = "";
+        
+        gameActive = true;
+        timeSeconds = 60;
+        updateTimerDisplay();
+        destinationKey = null;
+        destDisplay.innerHTML = "❓ Destination hidden... Pack quickly!";
+        resultPanel.innerHTML = "⏳ Timer started! Choose wisely — you cannot change items now. After 60s you'll know where you're going!";
+
+        // визуальный фидбек
+        const timerDiv = document.getElementById('timerDisplay');
+        timerDiv.classList.remove('blink-red');
+        
+        timerInterval = setInterval(() => {
+            if (!gameActive) return;
+            if (timeSeconds <= 0) {
+                // ВРЕМЯ ВЫШЛО
+                stopTimer();
+                destinationKey = getRandomDestination();
+                const dest = destinations[destinationKey];
+                destDisplay.innerHTML = `✈️ Destination: ${dest.name}`;
+                resultPanel.innerHTML = `🕰️ TIME'S UP! You're going to ${dest.name}.<br> Now explain your choices in the box above and click "Save my reasoning". Then you'll get feedback.`;
+                gameActive = false;
+                timerDiv.classList.remove('blink-red');
+                // анимация чемодана
+                document.querySelector('.game-container').classList.add('shake-animation');
+                setTimeout(() => document.querySelector('.game-container').classList.remove('shake-animation'), 600);
+                return;
+            }
+            timeSeconds--;
+            updateTimerDisplay();
+            if (timeSeconds <= 10) {
+                timerDiv.classList.add('blink-red');
+            } else {
+                timerDiv.classList.remove('blink-red');
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const mins = Math.floor(timeSeconds / 60);
+        const secs = timeSeconds % 60;
+        timerDisplay.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+    }
+
+    // Анализ выбора + фидбек
+    function evaluatePacking() {
+        if (!destinationKey) {
+            resultPanel.innerHTML = "⚠️ You haven't finished packing / timer not started? Press START first, wait 60 sec, then explain.";
+            return;
+        }
+        if (!explanationsSaved && explanationText.value.trim().length < 10) {
+            resultPanel.innerHTML = "📝 Please write your reasoning in the box above (why you chose each item) and click 'Save my reasoning' first.";
+            return;
+        }
+        
+        const dest = destinations[destinationKey];
+        const idealList = dest.tips.toLowerCase();
+        let score = 0;
+        let goodItems = [];
+        let badItems = [];
+        
+        for (let item of selectedItems) {
+            const cleanItem = item.replace(/[^a-z]/gi, '').toLowerCase();
+            let isIdeal = false;
+            if (destinationKey === 'beach' && (cleanItem.includes('swimsuit') || cleanItem.includes('sunscreen') || cleanItem.includes('flipflop') || cleanItem.includes('towel') || cleanItem.includes('cap') || cleanItem.includes('sunglasses') || cleanItem.includes('water') || cleanItem.includes('snacks'))) isIdeal = true;
+            else if (destinationKey === 'mountains' && (cleanItem.includes('hiking') || cleanItem.includes('hoodie') || cleanItem.includes('rain') || cleanItem.includes('power') || cleanItem.includes('water') || cleanItem.includes('sunscreen') || cleanItem.includes('snacks') || cleanItem.includes('mosquito'))) isIdeal = true;
+            else if (destinationKey === 'city' && (cleanItem.includes('sandals') || cleanItem.includes('charger') || cleanItem.includes('power') || cleanItem.includes('umbrella') || cleanItem.includes('jacket') || cleanItem.includes('cap') || cleanItem.includes('snacks') || cleanItem.includes('book'))) isIdeal = true;
+            else if (destinationKey === 'camping' && (cleanItem.includes('mosquito') || cleanItem.includes('water') || cleanItem.includes('power') || cleanItem.includes('hoodie') || cleanItem.includes('rain') || cleanItem.includes('snacks') || cleanItem.includes('towel') || cleanItem.includes('hiking'))) isIdeal = true;
+            
+            if (isIdeal) {
+                score++;
+                goodItems.push(item);
+            } else {
+                badItems.push(item);
+            }
+        }
+        
+        let feedback = "";
+        if (score >= 6) feedback = "🏆 AMAZING PACKING! You're a pro traveler! 🎒✨";
+        else if (score >= 4) feedback = "👍 Good job! A few changes would be perfect. You survived!";
+        else feedback = "😅 Oops! Your suitcase needs help. Next time check destination tips!";
+        
+        resultPanel.innerHTML = `
+            <strong>🎒 PACKING REPORT 🎒</strong><br>
+            Destination: ${dest.name}<br>
+            ✅ Great choices: ${goodItems.length > 0 ? goodItems.join(', ') : 'none'}<br>
+            ❌ Maybe not useful: ${badItems.length > 0 ? badItems.join(', ') : 'none — brilliant!'}<br>
+            🎯 Score: ${score}/8<br>
+            ${feedback}<br>
+            <hr>
+            📖 Ideal packing for ${dest.name}: ${dest.tips}<br>
+            🧠 Your explanation: "${explanationText.value.substring(0, 150)}..."
+        `;
+    }
+
+    function resetGame() {
+        stopTimer();
+        gameActive = false;
+        selectedItems = [];
+        destinationKey = null;
+        explanationsSaved = false;
+        explanationText.value = "";
+        timeSeconds = 60;
+        updateTimerDisplay();
+        destDisplay.innerHTML = "❓ Destination unknown";
+        renderItems();
+        resultPanel.innerHTML = "🔄 Game reset! Choose up to 8 items and press START. After timer, explain your choices.";
+        const timerDiv = document.getElementById('timerDisplay');
+        timerDiv.classList.remove('blink-red');
+    }
+
+    // Сохранить объяснение
+    submitExplanationBtn.onclick = () => {
+        if (!gameActive && destinationKey) {
+            explanationsSaved = true;
+            resultPanel.innerHTML = "✅ Reasoning saved! Now click the 'START' button? No — you already finished. Click 'Evaluate My Packing' button below.";
+            // добавим кнопку оценки
+            if (!document.getElementById('evalBtn')) {
+                const evalBtn = document.createElement('button');
+                evalBtn.id = 'evalBtn';
+                evalBtn.innerText = "🧐 Evaluate My Packing";
+                evalBtn.style.background = "#2d6a4f";
+                evalBtn.style.color = "white";
+                evalBtn.onclick = () => evaluatePacking();
+                document.querySelector('.explanation-box').appendChild(evalBtn);
+            }
+        } else if (!destinationKey) {
+            resultPanel.innerHTML = "⏳ You haven't finished the timer yet! Press START, wait 60 sec, then explain and evaluate.";
+        } else {
+            explanationsSaved = true;
+            resultPanel.innerHTML = "📘 Notes saved! Now click 'Evaluate My Packing' (the green button below).";
+            if (!document.getElementById('evalBtn')) {
+                const evalBtn = document.createElement('button');
+                evalBtn.id = 'evalBtn';
+                evalBtn.innerText = "🧐 Evaluate My Packing";
+                evalBtn.style.background = "#2d6a4f";
+                evalBtn.style.color = "white";
+                evalBtn.onclick = () => evaluatePacking();
+                document.querySelector('.explanation-box').appendChild(evalBtn);
+            }
+        }
+    };
+
+    startBtn.onclick = startPacking;
+    resetBtn.onclick = resetGame;
+    
+    // инициализация
+    renderItems();
+    resetGame();
+</script>
+</body>
+</html>
